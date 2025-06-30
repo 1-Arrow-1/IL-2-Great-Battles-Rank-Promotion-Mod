@@ -98,6 +98,5 @@ IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── promotion_certificate_GB.png         # Blank template for British certificates
 ├── Promotion_certificate_RU.png         # Blank template for Soviet certificates
 ├── Promotion_certificate_US.png         # Blank template for US certificate
-├── requirements.txt                     # pip dependencies: pillow, psutil
 └── README.md                            # This file
 ```
