@@ -29,7 +29,7 @@ A Python utility for **IL-2 Sturmovik: Battle of Stalingrad** that:
   ```bash
   pip install pillow psutil
   ```
-* **Optional (for packaging)**: [PyInstaller](https://www.pyinstaller.org/)
+*  For packaging: [PyInstaller](https://www.pyinstaller.org/)
 
 ---
 
