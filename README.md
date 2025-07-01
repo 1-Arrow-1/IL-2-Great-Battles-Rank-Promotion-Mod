@@ -66,7 +66,7 @@ To install and deploy the Rank Promotion Mod via Inno Setup, follow these steps:
 3. The resulting installer bundle includes:
 
 * `rank_promotion_checker.exe`
-* All necessary rank insignias, scripts, and supporting files based on the user’s configured minimum and maximum ranks per country
+* All necessary rank insignias, scripts, and supporting files based on the user’s configured minimum and maximum ranks per country and optional selections the user made during installation
 
 On first launch, `promotion_config.json` is created in your game’s `data/Career` folder. You can adjust the promotion thresholds directly by editing `promotion_config.json`.
 
