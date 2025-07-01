@@ -77,6 +77,7 @@ On first launch of the installer, `promotion_config.json` is created in your gam
 IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── certificates.py                      # Certificate-generation routines
 ├── config.py                            # Resource paths & config loader/saver
+├── DejaVuSans.ttf                       # Fall back font
 ├── helpers.py                           # Utility functions (font loader, process check)
 ├── logger.py                            # Debug logging with rotation
 ├── promotion.py                         # DB monitor and promotion logic
