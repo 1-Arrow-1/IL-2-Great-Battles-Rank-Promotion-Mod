@@ -80,9 +80,9 @@ On first run, promotion_config.json is created in your game’s data/Career fold
 	  ]
 	}
 ```
-* pcp = Player Combat Performance required for auto-promotion **OR**  
-*	sortie_count = minimum number of missions flown in conjunction with
-	    max_failure_rate = (total sorties – successful sorties) ÷ total sorties for auto-promotion
+* `pcp` = Player Combat Performance required for auto-promotion **OR**  
+*	`sortie_count = number of missions flown` in conjunction with
+	    `max_failure_rate = (total sorties – successful sorties) ÷ total sorties` for auto-promotion
 
 ### 6. Change Settings  
 
