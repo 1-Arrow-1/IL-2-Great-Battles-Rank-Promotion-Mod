@@ -52,7 +52,7 @@ pyinstaller rank_promotion_checker_new10_AI.spec
 ### 2. Prepare the Inno Setup Package  
 1.	Download IL-2 Rank Mod Inno Setup.zip from this repository.
 2.	Unzip the archive into a folder (e.g. IL-2 Rank Mod Inno Setup).
-3.	Copy your previously built executable (rank_promotion_checker.exe) into the "bin" subfolder of that folder.
+3.	Copy your previously built executable (rank_promotion_checker.exe) into the `bin` subfolder of that folder.
 4.	If you don’t already have it, install Inno Setup:
 https://jrsoftware.org/isinfo.php
 
