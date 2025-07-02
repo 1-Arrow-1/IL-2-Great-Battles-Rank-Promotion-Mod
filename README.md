@@ -94,8 +94,8 @@ Place a shortcut to rank_promotion_checker.exe in:
 ```
 On Windows login, the checker launches automatically, waits for il-2.exe, and begins monitoring your cp.db.
 
-Project Structure## Project Structure
-```bash
+## Project Structure
+
 IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── certificates.py                      # Certificate-generation routines
 ├── config.py                            # Resource paths & config loader/saver
