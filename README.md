@@ -92,8 +92,9 @@ Place a shortcut to rank_promotion_checker.exe in:
 ```bash
 %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
 ```
-On Windows login, the checker launches automatically, waits for il-2.exe, and begins monitoring your cp.db.
+On Windows login, the checker launches automatically, waits for il-2.exe, and begins monitoring your cp.db and executes promotions (beyond the hard-coded 5-rank in-game limit)  when eligible.
 
+```bash
 ## Project Structure
 
 IL-2-Great-Battles-Rank-Promotion-Mod/
