@@ -1,5 +1,5 @@
 IL-2-Great-Battles-Rank-Promotion-Mod
-
+```bash
 A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
 	•	Monitors your career database in real time for new missions.
 	•	Auto-promotes pilots based on configurable performance thresholds.
@@ -43,7 +43,7 @@ pyinstaller rank_promotion_checker_new10_AI.spec
 	3.	After completion, locate the EXE at:
 
 dist/rank_promotion_checker.exe
-```bash
+
 mv dist/rank_promotion_checker_new10_AI.exe dist/rank_promotion_checker.exe
 
 2. Prepare the Inno Setup Package
