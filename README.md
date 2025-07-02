@@ -1,6 +1,6 @@
 IL-2-Great-Battles-Rank-Promotion-Mod
-
 A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
+```
 		•	Monitors your career database in real time for new missions.
 		•	Auto-promotes pilots based on configurable performance thresholds.
 		•	Displays in-game pop-ups featuring promotion ceremonies.
