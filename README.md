@@ -23,9 +23,7 @@ Requirements
 	•	Dependencies (install via pip):
 
 pip install pillow psutil
-
-
-	•	for packaging: PyInstaller
+for packaging: PyInstaller
 
 ⸻
 
@@ -39,7 +37,7 @@ To install and deploy the Rank Promotion Mod via Inno Setup, follow these steps:
 
 pyinstaller rank_promotion_checker_new10_AI.spec
 
-	3.	After completion, locate the EXE at:
+ 3.	After completion, locate the EXE at:
 
 dist/rank_promotion_checker.exe
 
@@ -75,9 +73,9 @@ On first run, promotion_config.json is created in your game’s data/Career fold
   ]
 }
 
-	•	pcp = Player Combat Performance required for auto-promotion OR
-	•	sortie_count = minimum number of missions flown in conjunction with
-	•	max_failure_rate = (total sorties – successful sorties) ÷ total sorties for auto-promotion
+ -->	pcp = Player Combat Performance required for auto-promotion OR
+	-->	sortie_count = minimum number of missions flown in conjunction with
+	    max_failure_rate = (total sorties – successful sorties) ÷ total sorties for auto-promotion
 
 6. Change Settings
 
@@ -104,7 +102,7 @@ IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── rank_promotion_checker_new10_AI.py   # Main entry point
 ├── rank_promotion_checker_new10_AI.spec # PyInstaller spec for one-file EXE
 ├── IL-2 Rank Mod Inno Setup.zip         # Inno Setup package (unzip and compile)
-├── certificate_template.png             # Blank template  for German certificates
+├── certificate_template.png             # Blank template for German certificates
 ├── Ceremony_DE.png                      # German ceremony image
 ├── Ceremony_GB.png                      # British ceremony image
 ├── Ceremony_RU.png                      # Soviet ceremony image
