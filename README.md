@@ -1,5 +1,5 @@
 IL-2-Great-Battles-Rank-Promotion-Mod
-```bash
+
 A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
 	•	Monitors your career database in real time for new missions.
 	•	Auto-promotes pilots based on configurable performance thresholds.
@@ -10,7 +10,7 @@ A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
 
 Features
 	•	Real-time monitoring of the cp.db career database, restarting automatically whenever IL-2 closes and reopens.
-	•	Configurable thresholds for Promotion-Chance (PCP), sorties, and failure rate per rank.
+	•	Configurable thresholds for Player Comabt Performance PCP), sorties, and failure rate per rank.
 	•	Localization support: choose your UI language; Soviet ranks always display in Cyrillic.
 	•	Authentic-style certificates:
 	•	German & US certificates modeled on historical originals.
@@ -38,7 +38,6 @@ To install and deploy the Rank Promotion Mod via Inno Setup, follow these steps:
 	2.	Generate the standalone executable using the included spec file:
 
 pyinstaller rank_promotion_checker_new10_AI.spec
-
 
 	3.	After completion, locate the EXE at:
 
