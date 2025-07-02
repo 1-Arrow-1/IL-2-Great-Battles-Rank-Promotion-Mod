@@ -60,8 +60,9 @@ https://jrsoftware.org/isinfo.php
 	3.	The installer will package your pre-built rank_promotion_checker.exe (which already includes all ceremony images, certificate templates, and font files) along with the necessary scripts and assets.
 
 4. Run the Installer
-	•	Double-click the generated setup executable.
-	•	Follow the prompts to select minimum & maximum ranks for each country and choose optional medal/emblem styles.
+
+* Double-click the generated setup executable.
+* Follow the prompts to select minimum & maximum ranks for each country and choose optional medal/emblem styles.
 
 5. First Launch & Configuration
 
@@ -77,8 +78,8 @@ On first run, promotion_config.json is created in your game’s data/Career fold
   ]
 }
 ```
- -->	pcp = Player Combat Performance required for auto-promotion OR
-	-->	sortie_count = minimum number of missions flown in conjunction with
+* pcp = Player Combat Performance required for auto-promotion OR
+*	sortie_count = minimum number of missions flown in conjunction with
 	    max_failure_rate = (total sorties – successful sorties) ÷ total sorties for auto-promotion
 
 6. Change Settings
