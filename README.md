@@ -1,25 +1,27 @@
 IL-2-Great-Battles-Rank-Promotion-Mod
 A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
-		•	Monitors your career database in real time for new missions.
-		•	Auto-promotes pilots based on configurable performance thresholds.
-		•	Displays in-game pop-ups featuring promotion ceremonies.
-		•	Generates personalized PNG certificates (German, US, Soviet, and British styles).
+* Monitors your career database in real time for new missions.
+* Auto-promotes pilots based on configurable performance thresholds.
+* Displays in-game pop-ups featuring promotion ceremonies.
+* Generates personalized PNG certificates (German, US, Soviet, and British styles).
 
 ⸻
 
 Features
-		•	Real-time monitoring of the cp.db career database, restarting automatically whenever IL-2 closes and reopens.
-		•	Configurable thresholds for Player Comabt Performance PCP), sorties, and failure rate per rank.
-		•	Localization support: choose your UI language; Soviet ranks always display in Cyrillic.
-		•	Authentic-style certificates:
-		•	German & US certificates modeled on historical originals.
-		•	Fictional (but polished) Soviet and British versions.
-		•	Lightweight GUI powered by Tkinter; pop-ups auto-close after 10 seconds.
-		•	PyInstaller ready: includes rank_promotion_checker_new10_AI.spec for one-file bundling.
+
+* Real-time monitoring of the cp.db career database, restarting automatically whenever IL-2 closes and reopens.
+* Configurable thresholds for Player Comabt Performance PCP), sorties, and failure rate per rank.
+* Localization support: choose your UI language; Soviet ranks always display in Cyrillic.
+* Authentic-style certificates:
+* German & US certificates modeled on historical originals.
+* Fictional (but polished) Soviet and British versions.
+* Lightweight GUI powered by Tkinter; pop-ups auto-close after 10 seconds.
+* PyInstaller ready: includes rank_promotion_checker_new10_AI.spec for one-file bundling.
 
 Requirements
-		•	Python 3.8+
-		•	Dependencies (install via pip):
+
+*	Python 3.8+
+*	Dependencies (install via pip):
 ```bash
 pip install pillow psutil
 ```
