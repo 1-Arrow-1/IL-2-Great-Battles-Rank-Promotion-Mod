@@ -21,10 +21,13 @@ Features
 Requirements
 	•	Python 3.8+
 	•	Dependencies (install via pip):
-
+```bash
 pip install pillow psutil
-for packaging: PyInstaller
-
+```
+for packaging:
+ ```bash
+pip install pyinstaller
+```
 ⸻
 
 Installation
@@ -38,10 +41,10 @@ To install and deploy the Rank Promotion Mod via Inno Setup, follow these steps:
 pyinstaller rank_promotion_checker_new10_AI.spec
 
  3.	After completion, locate the EXE at:
+```bash
+<folder of all py and asset files>/dist/rank_promotion_checker.exe
+```
 
-dist/rank_promotion_checker.exe
-
-mv dist/rank_promotion_checker_new10_AI.exe dist/rank_promotion_checker.exe
 
 2. Prepare the Inno Setup Package
 	1.	Download IL-2 Rank Mod Inno Setup.zip from this repository.
@@ -62,7 +65,7 @@ https://jrsoftware.org/isinfo.php
 5. First Launch & Configuration
 
 On first run, promotion_config.json is created in your game’s data/Career folder. Open it to tweak your thresholds:
-
+```bash
 {
   "game_path": "...",
   "language": "ENG",
@@ -72,7 +75,7 @@ On first run, promotion_config.json is created in your game’s data/Career fold
     …
   ]
 }
-
+```
  -->	pcp = Player Combat Performance required for auto-promotion OR
 	-->	sortie_count = minimum number of missions flown in conjunction with
 	    max_failure_rate = (total sorties – successful sorties) ÷ total sorties for auto-promotion
@@ -84,9 +87,9 @@ Re-run the installer whenever you want new parameters. It will detect and uninst
 7. Auto-start (optional)
 
 Place a shortcut to rank_promotion_checker.exe in:
-
+```bash
 %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
-
+```
 On Windows login, the checker launches automatically, waits for il-2.exe, and begins monitoring your cp.db.
 
 Project Structure## Project Structure
