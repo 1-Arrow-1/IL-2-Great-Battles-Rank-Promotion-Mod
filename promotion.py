@@ -272,10 +272,10 @@ def monitor_db(db_path, thresholds, max_ranks, language, insignia_base):
                         squadron_country,
                         last_date 
                     )
-
-            conn.close()
-
+                    
         except Exception as e:
             log(f"Monitor error: {e}")
+        finally:
+            conn.close()
 
         time.sleep(POLL_INTERVAL)
