@@ -297,3 +297,5 @@ def show_next_popup():
             )
     except Exception as e:
         log(f"Exception in popup: {e}")
+        _root.after(0, show_next_popup)
+        return
