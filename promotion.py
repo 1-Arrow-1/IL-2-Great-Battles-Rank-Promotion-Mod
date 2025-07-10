@@ -78,7 +78,7 @@ def check_all_pilots(
 
         # Try to promote if in [5 .. ceiling-1]
         if 4 <= r < ceiling:
-            nr = try_promote(conn, pid, r, p, s, g, thresholds)
+            nr = try_promote(conn, pid, r, p, s, g, thresholds, last_date, is_player=is_player)
         else:
             nr = r
 
@@ -105,7 +105,7 @@ def check_all_pilots(
                 )
                 player_notify = (
                     "player", ceremony, big_ins, title, language,
-                    display_country, first, last, r, nr, last_date  # add these fields
+                    display_country, first, last, r, nr, last_date  
                 )
 
 
@@ -140,21 +140,123 @@ def check_all_pilots(
         popup_queue.put(player_notify)
         
 # --- Promotion logic ---
-def try_promote(conn, pid, rank, pcp, sorties, good, thresholds):
-    p = float(pcp); s = int(sorties); g = int(good)
+#def try_promote(conn, pid, rank, pcp, sorties, good, thresholds):
+#    p = float(pcp); s = int(sorties); g = int(good)
+#    failure = (s - g) / s if s > 0 else 1.0
+#    idx = rank - 4
+#    if not (0 <= idx < len(thresholds)):
+#        return rank
+#    pr, sr, fr = thresholds[idx]
+#    log(f"Pilot {pid}: PCP={p}, sorties={s}, good={g}, failure={failure:.3f}, thr=({pr},{sr},{fr})")
+#    if p >= pr or (s >= sr and failure <= fr):
+#        nr = rank + 1
+#        conn.execute("UPDATE pilot SET rankId=? WHERE id= ?", (nr, pid))
+#        conn.commit()
+#        log(f"Auto-promoted {pid}: {rank} -> {nr}")
+#        return nr
+#    return rank
+
+def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_str, is_player=True):
+    from datetime import datetime
+    import random
+
+    p = float(pcp)
+    s = int(sorties)
+    g = int(good)
     failure = (s - g) / s if s > 0 else 1.0
     idx = rank - 4
+
     if not (0 <= idx < len(thresholds)):
         return rank
+
     pr, sr, fr = thresholds[idx]
-    log(f"Pilot {pid}: PCP={p}, sorties={s}, good={g}, failure={failure:.3f}, thr=({pr},{sr},{fr})")
-    if p >= pr or (s >= sr and failure <= fr):
-        nr = rank + 1
-        conn.execute("UPDATE pilot SET rankId=? WHERE id= ?", (nr, pid))
+    current_date = datetime.strptime(current_date_str, "%Y-%m-%d")
+
+    if not (p >= pr or (s >= sr and failure <= fr)):
+        log(f"Pilot {pid} does not meet threshold for rank {rank + 1}")
+        return rank
+
+    # === AI PILOT LOGIC ===
+    if not is_player:
+        promote_to = rank + 1
+        conn.execute("UPDATE pilot SET rankId=? WHERE id=?", (promote_to, pid))
         conn.commit()
-        log(f"Auto-promoted {pid}: {rank} -> {nr}")
-        return nr
-    return rank
+        log(f"[AI] Pilot {pid} promoted to rank {promote_to} (auto)")
+        return promote_to
+
+    # === PLAYER PILOT LOGIC ===
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT last_attempt, last_success, fail_count
+        FROM promotion_attempts
+        WHERE pilotId = ?
+    """, (pid,))
+    row = cur.fetchone()
+
+    last_attempt_date = None
+    last_success = None
+    fail_count = 0
+
+    if row:
+        last_attempt_date = datetime.strptime(row[0], "%Y-%m-%d")
+        last_success = row[1]
+        fail_count = row[2] or 0
+
+        if last_success == 0:
+            days_since = (current_date - last_attempt_date).days
+            if days_since < 2:
+                log(f"Pilot {pid} in cooldown period ({days_since} days since last attempt).")
+                return rank
+
+    base_chance = 0.9 - (0.05 * idx)
+    chance = max(base_chance, 0.25)
+
+    # Forced promotion after 3 failed attempts
+    if fail_count >= 3:
+        promote_to = rank + 1
+        conn.execute("UPDATE pilot SET rankId=? WHERE id=?", (promote_to, pid))
+        cur.execute("""
+            INSERT INTO promotion_attempts (pilotId, last_attempt, last_success, fail_count)
+            VALUES (?, ?, 1, 0)
+            ON CONFLICT(pilotId) DO UPDATE SET last_attempt=excluded.last_attempt,
+                                               last_success=1,
+                                               fail_count=0
+        """, (pid, current_date_str))
+        conn.commit()
+        log(f"[PLAYER] Pilot {pid} forced promotion to {promote_to} after {fail_count} failures.")
+        return promote_to
+
+    # Chance-based promotion
+    roll = random.random()
+    log(f"[PLAYER] Pilot {pid}: roll={roll:.3f}, chance={chance:.3f} for rank {rank + 1}")
+
+    if roll <= chance:
+        promote_to = rank + 1
+        conn.execute("UPDATE pilot SET rankId=? WHERE id=?", (promote_to, pid))
+        cur.execute("""
+            INSERT INTO promotion_attempts (pilotId, last_attempt, last_success, fail_count)
+            VALUES (?, ?, 1, 0)
+            ON CONFLICT(pilotId) DO UPDATE SET last_attempt=excluded.last_attempt,
+                                               last_success=1,
+                                               fail_count=0
+        """, (pid, current_date_str))
+        conn.commit()
+        log(f"[PLAYER] Pilot {pid} promoted to rank {promote_to}")
+        return promote_to
+    else:
+        fail_count += 1
+        cur.execute("""
+            INSERT INTO promotion_attempts (pilotId, last_attempt, last_success, fail_count)
+            VALUES (?, ?, 0, ?)
+            ON CONFLICT(pilotId) DO UPDATE SET last_attempt=excluded.last_attempt,
+                                               last_success=0,
+                                               fail_count=excluded.fail_count
+        """, (pid, current_date_str, fail_count))
+        conn.commit()
+        log(f"[PLAYER] Pilot {pid} failed promotion. Fail count now {fail_count}")
+        return rank
+
+
     
 def get_active_player_id(conn, mission_squadron):
     """
@@ -208,6 +310,15 @@ def monitor_db(db_path, thresholds, max_ranks, language, insignia_base):
     # 1) Build a full squadron→country map up front
     cur.execute("SELECT id, configID FROM squadron")
     squadron_country = { row[0]: row[1] // 1000 for row in cur.fetchall() }
+    
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS promotion_attempts (
+        pilotId INTEGER PRIMARY KEY,
+        last_attempt TEXT,
+        last_success INTEGER,
+        fail_count INTEGER DEFAULT 0
+    )
+""")
 
     # Prime with last seen mission
     cur.execute("SELECT id, date FROM mission ORDER BY id DESC LIMIT 1")
