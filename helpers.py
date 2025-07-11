@@ -60,3 +60,12 @@ def spaced_out_name(full_name):
         return " ".join(first) + "  " + " ".join(last)
     else:
         return " ".join(full_name)
+        
+def cleanup_orphaned_promotion_attempts(conn):
+    cur = conn.cursor()
+    cur.execute("""
+        DELETE FROM promotion_attempts
+        WHERE pilotId NOT IN (SELECT id FROM pilot)
+    """)
+    conn.commit()
+    log("[CLEANUP] Removed orphaned entries from promotion_attempts")

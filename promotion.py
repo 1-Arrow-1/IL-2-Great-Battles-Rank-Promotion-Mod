@@ -4,8 +4,9 @@ import queue
 import time
 from ranks import get_rank_name, get_rank_title_path, get_small_insignia_path
 from logger import log
-from helpers import is_il2_running
+from helpers import is_il2_running, parse_flexible_date
 from config import POLL_INTERVAL, LOCALE_MAP, CEREMONY_MAP, RESOURCE_PATH
+from helpers import cleanup_orphaned_promotion_attempts
 
 def get_latest_event_year(conn, pid: int) -> int:
     cur = conn.cursor()
@@ -170,7 +171,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
         return rank
 
     pr, sr, fr = thresholds[idx]
-    current_date = datetime.strptime(current_date_str, "%Y-%m-%d")
+    current_date = parse_flexible_date(current_date_str)
 
     if not (p >= pr or (s >= sr and failure <= fr)):
         log(f"Pilot {pid} does not meet threshold for rank {rank + 1}")
@@ -198,7 +199,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
     fail_count = 0
 
     if row:
-        last_attempt_date = datetime.strptime(row[0], "%Y-%m-%d")
+        last_attempt_date = parse_flexible_date(row[0])
         last_success = row[1]
         fail_count = row[2] or 0
 
@@ -383,6 +384,8 @@ def monitor_db(db_path, thresholds, max_ranks, language, insignia_base):
                         squadron_country,
                         last_date 
                     )
+                    # ✅ Cleanup after promotion check
+                    cleanup_orphaned_promotion_attempts(conn)
                     
         except Exception as e:
             log(f"Monitor error: {e}")
