@@ -57,9 +57,34 @@ def spaced_out_name(full_name):
     parts = full_name.strip().split(None, 1)
     if len(parts) == 2:
         first, last = parts
-        return " ".join(first) + "  " + " ".join(last)
+        return "\u00A0".join(first) + "\u00A0\u00A0" + "\u00A0".join(last)
     else:
-        return " ".join(full_name)
+        return "\u00A0".join(full_name)
+
+def draw_spaced_name(draw, x_center, y, name, font, gap_factor=1.25):
+    first_last = name.strip().split(None, 1)
+    chars = list(first_last[0]) + ['  '] + list(first_last[1]) if len(first_last) == 2 else list(name)
+
+    # Measure total width dynamically
+    widths = []
+    for c in chars:
+        if c.strip() == '':
+            space_width = draw.textlength(' ', font=font)
+            widths.append(space_width * 2)  # double space between names
+        else:
+            w = draw.textlength(c, font=font)
+            widths.append(w * gap_factor)
+
+    total_width = sum(widths)
+    x = x_center - total_width / 2
+
+    for c, w in zip(chars, widths):
+        if c.strip() == '':
+            x += w  # spacing only
+        else:
+            draw.text((x, y), c, font=font, fill=(0, 0, 0, 255))
+            x += w
+
         
 def cleanup_orphaned_promotion_attempts(conn):
     cur = conn.cursor()
