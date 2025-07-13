@@ -66,14 +66,14 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     new_rank = get_rank_name(country, new_rank_id, year, INSIGNIA_BASE, locale) if new_rank_id is not None else ""
 
     # German name is spaced out for authenticity
-    display_name = spaced_out_name(name) if country == 201 else name
+    #display_name = name
 
     # --- Certificate generator dispatch ---
     cert_img = None
     if country in template_map and os.path.exists(template_map[country]):
         template_path = template_map[country]
         if country == 201:
-            cert_img = generate_certificate_image_DE(template_path, display_name, old_rank, new_rank, latest_mission_date)
+            cert_img = generate_certificate_image_DE(template_path, name, old_rank, new_rank, latest_mission_date)
         elif country == 103:
             cert_img = generate_certificate_image_US(template_path, name, old_rank, new_rank, latest_mission_date)
         elif country == 101:
@@ -146,7 +146,19 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     rw, rh = popup.winfo_reqwidth(), popup.winfo_reqheight()
     sw, sh = popup.winfo_screenwidth(), popup.winfo_screenheight()
     popup.geometry(f"{rw}x{rh}+{(sw-rw)//2}+{(sh-rh)//2}")
-    popup.after(10000, on_close)
+    
+    # --- Manual Close Button ---
+    close_button = tk.Button(
+        outer,
+        text="Close",
+        command=on_close,
+        bg="#2f2f2f",
+        fg="#dadada",
+        font=tkfont.Font(size=12)
+    )
+    close_button.pack(side="bottom", pady=(10, 10))
+    
+    popup.after(30000, on_close)
     return popup
 
 
