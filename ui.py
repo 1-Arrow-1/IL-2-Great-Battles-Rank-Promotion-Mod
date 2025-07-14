@@ -26,6 +26,9 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     popup.overrideredirect(True)
     popup.attributes("-topmost", True)
     popup.configure(bg="#3f3f3f")
+    #popup.lift()
+    #popup.focus_force()
+    #popup.grab_set()
     
     # Frame containing everything
     container = tk.Frame(popup, bg="#3f3f3f")
@@ -155,22 +158,23 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     tk.Frame(right, bg="#191919").pack(side="top", fill="y", expand=True)
     
     # --- Manual Close Button ---
-    close_button = tk.Button(
-        container,
-        text="Close",
-        command=on_close,
-        bg="#2f2f2f",
-        fg="#dadada",
-        font=tkfont.Font(size=12)
-    )
-    close_button.pack(side="bottom", pady=(5, 5))
+    #close_button = tk.Button(
+    #    container,
+    #    text="Close",
+    #    command=on_close,
+    #    bg="#2f2f2f",
+    #    fg="#dadada",
+    #    font=tkfont.Font(size=12)
+    #)
+    #close_button.pack(side="bottom", pady=(5, 5))
 
     popup.update_idletasks()
     rw, rh = popup.winfo_reqwidth(), popup.winfo_reqheight()
     sw, sh = popup.winfo_screenwidth(), popup.winfo_screenheight()
     popup.geometry(f"{rw}x{rh}+{(sw-rw)//2}+{(sh-rh)//2}")
-    
-    popup.after(18000, on_close)
+    popup.bind("<Escape>", lambda e: on_close())
+
+    popup.after(20000, on_close)
     return popup
 
 
