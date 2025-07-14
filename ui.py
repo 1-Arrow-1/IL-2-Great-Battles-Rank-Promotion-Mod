@@ -26,8 +26,20 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     popup.overrideredirect(True)
     popup.attributes("-topmost", True)
     popup.configure(bg="#3f3f3f")
-    outer = tk.Frame(popup, bg="#191919")
-    outer.pack(padx=3, pady=3)
+    
+    # Frame containing everything
+    container = tk.Frame(popup, bg="#3f3f3f")
+    container.pack(padx=3, pady=3, fill="both", expand=True)
+
+    # Main content goes in here
+    content_frame = tk.Frame(container, bg="#191919")
+    content_frame.pack(fill="both", expand=True)
+    
+    outer = tk.Frame(content_frame, bg="#191919")
+    outer.pack(side="top", fill="both", expand=True)
+    #outer = tk.Frame(popup, bg="#191919")
+    #outer.pack(padx=3, pady=3)
+    
 
     # Left: Ceremony
     left = tk.Frame(outer, bg="#191919")
@@ -141,24 +153,24 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
         font=font_c, justify="center"
     ).pack(pady=(0,10))
     tk.Frame(right, bg="#191919").pack(side="top", fill="y", expand=True)
-
-    popup.update_idletasks()
-    rw, rh = popup.winfo_reqwidth(), popup.winfo_reqheight()
-    sw, sh = popup.winfo_screenwidth(), popup.winfo_screenheight()
-    popup.geometry(f"{rw}x{rh}+{(sw-rw)//2}+{(sh-rh)//2}")
     
     # --- Manual Close Button ---
     close_button = tk.Button(
-        outer,
+        container,
         text="Close",
         command=on_close,
         bg="#2f2f2f",
         fg="#dadada",
         font=tkfont.Font(size=12)
     )
-    close_button.pack(side="bottom", pady=(10, 10))
+    close_button.pack(side="bottom", pady=(5, 5))
+
+    popup.update_idletasks()
+    rw, rh = popup.winfo_reqwidth(), popup.winfo_reqheight()
+    sw, sh = popup.winfo_screenwidth(), popup.winfo_screenheight()
+    popup.geometry(f"{rw}x{rh}+{(sw-rw)//2}+{(sh-rh)//2}")
     
-    popup.after(30000, on_close)
+    popup.after(18000, on_close)
     return popup
 
 

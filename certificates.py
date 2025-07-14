@@ -45,8 +45,7 @@ def generate_certificate_image_DE(
     line_spacing = 38
     image_width, _ = cert_img.size
     for i, (line, font_size) in enumerate(lines):
-        font_path = select_font_for_text(line)
-        font = ImageFont.truetype(font_path, font_size)
+        font = load_font_for(line, font_size)
         bbox = draw.textbbox((0,0), line, font=font)
         text_width = bbox[2] - bbox[0]
         x = (image_width - text_width) / 2
@@ -54,8 +53,7 @@ def generate_certificate_image_DE(
         y += line_spacing
 
     y_bottom = cert_img.size[1] - 350
-    font_path = select_font_for_text(display_date)
-    font = ImageFont.truetype(font_path, 24)
+    font = load_font_for(display_date, 24)
     bbox = draw.textbbox((0,0), display_date, font=font)
     date_width = bbox[2] - bbox[0]
     x_date = ((image_width - date_width) / 2) + 35
