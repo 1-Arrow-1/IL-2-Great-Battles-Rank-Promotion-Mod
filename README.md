@@ -23,11 +23,7 @@
 *	Python 3.8+
 *	Dependencies (install via pip):
 ```bash
-pip install pillow psutil transliterate pypinyin
-```
-for packaging (creating a one-file `exe`):
- ```bash
-pip install pyinstaller
+pip install -r requirements.txt
 ```
 ⸻
 
@@ -129,5 +125,6 @@ IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── rank.ico                             # Application icon
 ├── promotion_certificate_GB.png         # Blank template for British certificate
 ├── Promotion_certificate_RU.png         # Blank template for Soviet certificate
-├── Promotion_certificate_US.png         # Blank template for US certificates 
+├── Promotion_certificate_US.png         # Blank template for US certificates
+├── requirements.txt                     # Necessary Python packages 
 └── README.md                            # This file
