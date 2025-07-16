@@ -1,20 +1,35 @@
 # ui.py
 import os
 import tkinter as tk
+import threading
+import unicodedata
 from tkinter import font as tkfont
 from PIL import Image, ImageTk
 from logger import log
 import queue
 from config import *
-from helpers import spaced_out_name, parse_flexible_date
+from helpers import spaced_out_name, parse_flexible_date, load_private_font
 from ranks import get_rank_name
 from certificates import (
     generate_certificate_image_DE, generate_certificate_image_US,
     generate_certificate_image_CCCP, generate_certificate_image_GB
 )
+from popup_render import render_promotion_popup_to_image
+
 # will be injected by main.py after computing insignia_base
 INSIGNIA_BASE = None
 
+def select_font_family(text: str) -> str:
+    """
+    Returns appropriate font family name for Tkinter based on text content.
+    """
+    if all('LATIN' in unicodedata.name(char, '') for char in text if char.isalpha()):
+        load_private_font("Darwin Pro Light.otf")
+        return "Darwin Pro Light"
+    else:
+        load_private_font("DejaVuSans.ttf")
+        return "DejaVu Sans"
+    
 # --- Player Popup (unchanged) ---
 def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
                          country=None, first=None, last=None,
@@ -26,9 +41,9 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     popup.overrideredirect(True)
     popup.attributes("-topmost", True)
     popup.configure(bg="#3f3f3f")
-    #popup.lift()
-    #popup.focus_force()
-    #popup.grab_set()
+    popup.lift()
+    popup.focus_force()
+    popup.grab_set()
     
     # Frame containing everything
     container = tk.Frame(popup, bg="#3f3f3f")
@@ -126,7 +141,8 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     tk.Frame(right, bg="#191919").pack(side="top", fill="y", expand=True)
     content = tk.Frame(right, bg="#191919")
     content.pack(anchor="center")
-    font_c = tkfont.Font(family="Darwin Pro Light", size=16)
+    #font_c = tkfont.Font(family="Darwin Pro Light", size=16)
+    
     intros = {
         "ENG":"Congratulations –\nyou have been promoted to:",
         "DEU":"Herzlichen Glückwunsch –\nSie wurden befördert zu:",
@@ -137,6 +153,8 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
         "POL":"Gratulacje –\nZostałeś awansowany na:"
     }
     intro_text = intros.get(language.upper(), intros["ENG"])
+    font_family = select_font_family(intro_text)
+    font_c = tkfont.Font(family=font_family, size=16)
     tk.Label(
         content, text=intro_text, fg="#dadada", bg="#191919",
         font=font_c, justify="center"
@@ -155,25 +173,35 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
         content, text=rank_title, fg="#4ea5f5", bg="#191919",
         font=font_c, justify="center"
     ).pack(pady=(0,10))
+    countdown_text = "Closing in 20..."
+    countdown_font_path = select_font_family(countdown_text)
+    countdown_font = tkfont.Font(family=countdown_font_path, size=11)
+
+    countdown_label = tk.Label(
+        content,
+        text=countdown_text,
+        fg="#dadada",
+        bg="#191919",
+        font=countdown_font
+    )
+
+    #countdown_label = tk.Label(content, text=countdown_text, fg="#dadada", bg="#191919", font=("Darwin Pro Light", 11))
+    countdown_label.pack(pady=(5, 10), anchor="center")  # slightly spaced from rank
+
+    def update_countdown(seconds):
+        countdown_label.config(text=f"Closing in {seconds}...")
+        if seconds > 0:
+            popup.after(1000, update_countdown, seconds - 1)
+
+    update_countdown(20)
     tk.Frame(right, bg="#191919").pack(side="top", fill="y", expand=True)
     
-    # --- Manual Close Button ---
-    #close_button = tk.Button(
-    #    container,
-    #    text="Close",
-    #    command=on_close,
-    #    bg="#2f2f2f",
-    #    fg="#dadada",
-    #    font=tkfont.Font(size=12)
-    #)
-    #close_button.pack(side="bottom", pady=(5, 5))
 
     popup.update_idletasks()
     rw, rh = popup.winfo_reqwidth(), popup.winfo_reqheight()
     sw, sh = popup.winfo_screenwidth(), popup.winfo_screenheight()
     popup.geometry(f"{rw}x{rh}+{(sw-rw)//2}+{(sh-rh)//2}")
-    popup.bind("<Escape>", lambda e: on_close())
-
+ 
     popup.after(20000, on_close)
     return popup
 
@@ -214,9 +242,9 @@ def show_ai_promotion_popup(name, before_insignia, after_insignia, rank_title, l
         "POL":"Wysokie Dowództwo z przyjemnością ogłasza następujące awanse:"
     }
 
-    font_h = tkfont.Font(family="Darwin Pro Light", size=18, weight="bold")
-    font_s = tkfont.Font(family="Darwin Pro Light", size=14)
-    font_n = tkfont.Font(family="Darwin Pro Light", size=16)
+    font_h = tkfont.Font(family=font_family, size=18, weight="bold") #tkfont.Font(family="Darwin Pro Light", size=18, weight="bold")
+    font_s = tkfont.Font(family=font_family, size=14)
+    font_n = tkfont.Font(family=font_family, size=16)
 
     # 1) Header
     tk.Label(
@@ -294,6 +322,16 @@ def show_ai_promotion_popup(name, before_insignia, after_insignia, rank_title, l
 # 1) New dispatcher — pulls one item, shows it, and only when
 #    the popup destroys itself does it call itself again
 def show_next_popup():
+    popup = None
+    
+    def on_close():
+        try:
+            popup.grab_release()
+        except:
+            pass
+        popup.destroy()
+        show_next_popup()
+        
     try:
         kind, *args = popup_queue.get_nowait()
     except queue.Empty:
@@ -302,10 +340,6 @@ def show_next_popup():
         return
     log(f"Dequeued popup kind: {kind}, args: {args}")
     
-    # when this popup closes we want to show the next one
-    def on_close():
-        popup.destroy()
-        show_next_popup()
 
     try:
         if kind == "ai":
@@ -323,6 +357,21 @@ def show_next_popup():
                 old_rank_id=old_rank_id, new_rank_id=new_rank_id,
                 latest_mission_date=latest_mission_date
             )
+            # Automatically render a clean, image-only version in the background
+            threading.Thread(
+                target=render_promotion_popup_to_image,
+                args=(ceremony, insignia, rank_title, language),
+                kwargs=dict(
+                    country=country,
+                    first=first,
+                    last=last,
+                    old_rank_id=old_rank_id,
+                    new_rank_id=new_rank_id,
+                    latest_mission_date=latest_mission_date,
+                    INSIGNIA_BASE=INSIGNIA_BASE
+                ),
+                daemon=True
+            ).start()
     except Exception as e:
         log(f"Exception in popup: {e}")
         _root.after(0, show_next_popup)
