@@ -23,7 +23,7 @@
 *	Python 3.8+
 *	Dependencies (install via pip):
 ```bash
-pip install pillow psutil
+pip install pillow psutil transliterate pypinyin
 ```
 for packaging (creating a one-file `exe`):
  ```bash
