@@ -3,9 +3,8 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 from config import RESOURCE_PATH, LOCALE_MAP
-from helpers import parse_flexible_date
+from helpers import parse_flexible_date, get_pil_font
 from ranks import get_rank_name
-from config import RESOURCE_PATH
 from logger import log
 from certificates import (
     generate_certificate_image_DE, generate_certificate_image_US,
@@ -19,15 +18,7 @@ def render_promotion_popup_to_image(ceremony, insignia, rank_title, language,
                                      latest_mission_date=None,
                                      INSIGNIA_BASE=None):
     try:
-        def is_latin(text):
-            return all('LATIN' in unicodedata.name(char, '') for char in text if char.isalpha())
-
-        def is_cyrillic(text):
-            return any('CYRILLIC' in unicodedata.name(char, '') for char in text)
-
-        def is_chinese(text):
-            return any('\u4e00' <= char <= '\u9fff' for char in text)
-            
+        
         # --- Setup ---
         name = f"{first} {last}".strip()
         locale = LOCALE_MAP.get(language.upper(), "eng")
@@ -91,18 +82,7 @@ def render_promotion_popup_to_image(ceremony, insignia, rank_title, language,
         x += cert_img.width + gap
 
         text_x = x
-        y_cursor = gap + 20
-        
-        def select_display_font(text, size):
-            if is_latin(text):
-                return ImageFont.truetype(os.path.join(RESOURCE_PATH, "Darwin Pro Light.otf"), size)
-            elif is_cyrillic(text) or is_chinese(text):
-                return ImageFont.truetype(os.path.join(RESOURCE_PATH, "DejaVuSans.ttf"), size)
-            else:
-                return ImageFont.truetype(os.path.join(RESOURCE_PATH, "DejaVuSans.ttf"), size)
-                
-        #font_path = os.path.join(RESOURCE_PATH, "Darwin Pro Light.otf")
-        
+        y_cursor = gap + 20     
 
         intro_map = {
             "ENG": "Congratulations – \nyou have been promoted to:",
@@ -118,8 +98,8 @@ def render_promotion_popup_to_image(ceremony, insignia, rank_title, language,
 
         # Draw intro text centered
         intro_text = intro_map.get(language.upper(), intro_map["ENG"])
-        font_label = select_display_font(intro_text, 22)
-        font_rank  = select_display_font(new_rank, 24)
+        font_label = get_pil_font(intro_text, 22, context="ui")
+        font_rank  = get_pil_font(new_rank, 24, context="ui")
         bbox = draw.textbbox((0, 0), intro_text, font=font_label)
         intro_w = bbox[2] - bbox[0]
         intro_h = bbox[3] - bbox[1]

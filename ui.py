@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 from logger import log
 import queue
 from config import *
-from helpers import spaced_out_name, parse_flexible_date, load_private_font
+from helpers import spaced_out_name, parse_flexible_date, get_tk_font
 from ranks import get_rank_name
 from certificates import (
     generate_certificate_image_DE, generate_certificate_image_US,
@@ -18,17 +18,6 @@ from popup_render import render_promotion_popup_to_image
 
 # will be injected by main.py after computing insignia_base
 INSIGNIA_BASE = None
-
-def select_font_family(text: str) -> str:
-    """
-    Returns appropriate font family name for Tkinter based on text content.
-    """
-    if all('LATIN' in unicodedata.name(char, '') for char in text if char.isalpha()):
-        load_private_font("Darwin Pro Light.otf")
-        return "Darwin Pro Light"
-    else:
-        load_private_font("DejaVuSans.ttf")
-        return "DejaVu Sans"
     
 # --- Player Popup (unchanged) ---
 def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
@@ -38,6 +27,7 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     
 
     popup = tk.Toplevel(_root)
+    popup.attributes("-alpha", 1.0)
     popup.overrideredirect(True)
     popup.attributes("-topmost", True)
     popup.configure(bg="#3f3f3f")
@@ -95,8 +85,6 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
     old_rank = get_rank_name(country, old_rank_id, year, INSIGNIA_BASE, locale) if old_rank_id is not None else ""
     new_rank = get_rank_name(country, new_rank_id, year, INSIGNIA_BASE, locale) if new_rank_id is not None else ""
 
-    # German name is spaced out for authenticity
-    #display_name = name
 
     # --- Certificate generator dispatch ---
     cert_img = None
@@ -153,8 +141,7 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
         "POL":"Gratulacje –\nZostałeś awansowany na:"
     }
     intro_text = intros.get(language.upper(), intros["ENG"])
-    font_family = select_font_family(intro_text)
-    font_c = tkfont.Font(family=font_family, size=16)
+    font_c = get_tk_font(intro_text, size=16, context = "ui")
     tk.Label(
         content, text=intro_text, fg="#dadada", bg="#191919",
         font=font_c, justify="center"
@@ -174,8 +161,7 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
         font=font_c, justify="center"
     ).pack(pady=(0,10))
     countdown_text = "Closing in 20..."
-    countdown_font_path = select_font_family(countdown_text)
-    countdown_font = tkfont.Font(family=countdown_font_path, size=11)
+    countdown_font = get_tk_font(countdown_text, size=11, context="ui")
 
     countdown_label = tk.Label(
         content,
@@ -185,10 +171,16 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
         font=countdown_font
     )
 
-    #countdown_label = tk.Label(content, text=countdown_text, fg="#dadada", bg="#191919", font=("Darwin Pro Light", 11))
     countdown_label.pack(pady=(5, 10), anchor="center")  # slightly spaced from rank
 
     def update_countdown(seconds):
+        if seconds <= 2:
+        # Fade out: set alpha linearly from 1.0 -> 0.0 over 2 seconds
+        alpha = max(0, seconds / 2.0)
+        try:
+            popup.attributes("-alpha", alpha)
+        except Exception:
+            pass
         countdown_label.config(text=f"Closing in {seconds}...")
         if seconds > 0:
             popup.after(1000, update_countdown, seconds - 1)
@@ -232,6 +224,7 @@ def show_ai_promotion_popup(name, before_insignia, after_insignia, rank_title, l
         "FRA":"Annonce de promotion",
         "POL":"Aktualności o awansie"
     }
+    
     subs = {
         "ENG":"The High Command is happy to announce the following promotions:",
         "DEU":"Das Oberkommando freut sich, folgende Beförderungen bekanntzugeben:",
@@ -242,23 +235,23 @@ def show_ai_promotion_popup(name, before_insignia, after_insignia, rank_title, l
         "POL":"Wysokie Dowództwo z przyjemnością ogłasza następujące awanse:"
     }
 
-    font_h = tkfont.Font(family=font_family, size=18, weight="bold") #tkfont.Font(family="Darwin Pro Light", size=18, weight="bold")
-    font_s = tkfont.Font(family=font_family, size=14)
-    font_n = tkfont.Font(family=font_family, size=16)
-
-    # 1) Header
+    # Header
+    header_text = headers.get(language, headers["ENG"])
+    font_h = get_tk_font(header_text, size=18, weight="bold", context="ui")
     tk.Label(
         outer,
-        text=headers.get(language, headers["ENG"]),
+        text=header_text,
         fg="#dadada",
         bg="#191919",
         font=font_h
     ).pack(anchor="w", pady=(10,4), padx=10)
 
-    # 2) Subtext
+    # Subtext
+    sub_text = subs.get(language, subs["ENG"])
+    font_s = get_tk_font(sub_text, size=14, context="ui")
     tk.Label(
         outer,
-        text=subs.get(language, subs["ENG"]),
+        text=sub_text,
         fg="#dadada",
         bg="#191919",
         font=font_s,
@@ -291,9 +284,13 @@ def show_ai_promotion_popup(name, before_insignia, after_insignia, rank_title, l
         "FRA": f"{name} – Promotion au grade {rank_title}",
         "POL": f"{name} – Awans do {rank_title}"
     }
+    
+    # Name + Promotion text
+    promotion_text = texts.get(language, texts["ENG"])
+    font_n = get_tk_font(promotion_text, size=16, context = "ui")
     tk.Label(
         row,
-        text=texts.get(language, texts["ENG"]),
+        text=promotion_text,
         fg="#dadada",
         bg="#191919",
         font=font_n,

@@ -4,23 +4,9 @@ from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime, timedelta
 import unicodedata
 import os
-from helpers import select_font_for_text, spaced_out_name, parse_flexible_date
+from helpers import get_pil_font, name_to_latin, name_to_cyrillic, spaced_out_name, parse_flexible_date
 from config import RESOURCE_PATH
 from logger import log
-
-
-def load_font_for(text: str, size: int) -> ImageFont.FreeTypeFont:
-    """
-    Selects an appropriate font based on the script of `text` and loads it at `size`.
-    Falls back to the default PIL font if the specified font cannot be loaded.
-    """
-    font_file = select_font_for_text(text)
-    font_path = os.path.join(RESOURCE_PATH, font_file)
-    try:
-        return ImageFont.truetype(font_path, size)
-    except OSError:
-        log(f"Failed to load font '{font_file}' at {font_path}; falling back to default font.")
-        return ImageFont.load_default()
 
 
 def generate_certificate_image_DE(
@@ -33,8 +19,11 @@ def generate_certificate_image_DE(
     latest_date = parse_flexible_date(latest_mission_date_str)
     effective_date = (latest_date - timedelta(days=14)).strftime("%d.%m.%Y")
     display_date = latest_date.strftime("%d.%m.%Y")
+    name = name_to_latin(name)
     name = spaced_out_name(name)
-
+    old_rank = name_to_latin(old_rank)
+    new_rank = name_to_latin(new_rank)
+    
     lines = [
         (f"den {old_rank} in der Luftwaffe", 24),
         (name, 24),
@@ -45,7 +34,7 @@ def generate_certificate_image_DE(
     line_spacing = 38
     image_width, _ = cert_img.size
     for i, (line, font_size) in enumerate(lines):
-        font = load_font_for(line, font_size)
+        font = get_pil_font(line, font_size, context="certificate")
         bbox = draw.textbbox((0,0), line, font=font)
         text_width = bbox[2] - bbox[0]
         x = (image_width - text_width) / 2
@@ -53,7 +42,7 @@ def generate_certificate_image_DE(
         y += line_spacing
 
     y_bottom = cert_img.size[1] - 350
-    font = load_font_for(display_date, 24)
+    font = get_pil_font(display_date, 24, context="certificate")
     bbox = draw.textbbox((0,0), display_date, font=font)
     date_width = bbox[2] - bbox[0]
     x_date = ((image_width - date_width) / 2) + 35
@@ -70,6 +59,9 @@ def generate_certificate_image_US(
     new_rank: str,
     latest_mission_date_str: str
 ) -> Image.Image:
+    name = name_to_latin(name)
+    old_rank = name_to_latin(old_rank)
+    new_rank = name_to_latin(new_rank)
     cert_img = Image.open(template_path).convert("RGBA")
     overlay = Image.new("RGBA", cert_img.size, (255,255,255,0))
     draw = ImageDraw.Draw(overlay)
@@ -150,7 +142,7 @@ def generate_certificate_image_US(
 
     SIZE = 18
     for x, y, text in positions:
-        font = load_font_for(text, SIZE)
+        font = get_pil_font(text, SIZE, context="certificate")
         draw.text((x, y), text, font=font, fill=(0,0,0,255))
 
     return Image.alpha_composite(cert_img, overlay)
@@ -163,6 +155,8 @@ def generate_certificate_image_CCCP(
     new_rank: str,
     latest_mission_date_str: str
 ) -> Image.Image:
+    name = name_to_cyrillic(name)
+    new_rank = name_to_cyrillic(new_rank)
     cert_img = Image.open(template_path).convert("RGBA")
     overlay = Image.new("RGBA", cert_img.size, (255,255,255,0))
     draw = ImageDraw.Draw(overlay)
@@ -186,7 +180,7 @@ def generate_certificate_image_CCCP(
 
     SIZE = 24
     for x, y, text in positions:
-        font = load_font_for(text, SIZE)
+        font = get_pil_font(text, SIZE, context="certificate")
         draw.text((x, y), text, font=font, fill=(0,0,0,255))
 
     return Image.alpha_composite(cert_img, overlay)
@@ -199,6 +193,9 @@ def generate_certificate_image_GB(
     new_rank: str,
     latest_mission_date_str: str
 ) -> Image.Image:
+    name = name_to_latin(name)
+    old_rank = name_to_latin(old_rank)
+    new_rank = name_to_latin(new_rank)
     cert_img = Image.open(template_path).convert("RGBA")
     overlay = Image.new("RGBA", cert_img.size, (255,255,255,0))
     draw    = ImageDraw.Draw(overlay)
@@ -220,7 +217,7 @@ def generate_certificate_image_GB(
     ]
 
     for text, x, y, size in lines:
-        font = load_font_for(text, size)
+        font = get_pil_font(text, size, context="certificate")
         if x == 'center':
             bbox = draw.textbbox((0,0), text, font=font)
             text_width = bbox[2] - bbox[0]
