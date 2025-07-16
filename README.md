@@ -112,6 +112,7 @@ IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── promotion.py                         # DB monitor and promotion logic
 ├── ranks.py                             # Rank-name lookup from locale files
 ├── ui.py                                # Tkinter pop-up display logic
+├── popup_render.py                      # Tkinter save promotion pop-up to png 
 ├── rank_promotion_checker_new10_AI.py   # Main entry point
 ├── rank_promotion_checker_new10_AI.spec # PyInstaller spec for one-file EXE
 ├── IL-2 Rank Mod Inno Setup.zip         # Inno Setup package (unzip and compile)
