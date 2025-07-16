@@ -175,12 +175,12 @@ def show_promotion_popup(ceremony, insignia, rank_title, language, on_close,
 
     def update_countdown(seconds):
         if seconds <= 2:
-        # Fade out: set alpha linearly from 1.0 -> 0.0 over 2 seconds
-        alpha = max(0, seconds / 2.0)
-        try:
-            popup.attributes("-alpha", alpha)
-        except Exception:
-            pass
+            # Fade out: set alpha linearly from 1.0 -> 0.0 over 2 seconds
+            alpha = max(0, seconds / 2.0)
+            try:
+                popup.attributes("-alpha", alpha)
+            except Exception:
+                pass
         countdown_label.config(text=f"Closing in {seconds}...")
         if seconds > 0:
             popup.after(1000, update_countdown, seconds - 1)

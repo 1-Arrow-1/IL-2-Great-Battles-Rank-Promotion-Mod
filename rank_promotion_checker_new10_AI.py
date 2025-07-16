@@ -26,10 +26,11 @@ from certificates import (
       generate_certificate_image_GB,
   )
 from helpers import load_private_font, is_il2_running
+import promotion, ui
 from ui import show_next_popup
 
 popup_queue = queue.Queue()
-import promotion, ui
+
 promotion.popup_queue = popup_queue
 ui.popup_queue = popup_queue       
     
