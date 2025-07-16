@@ -4,6 +4,7 @@
 	* Auto-promotes pilots based on configurable performance thresholds.
 	* Displays in-game pop-ups featuring promotion ceremonies.
 	* Generates personalized PNG certificates (German, US, Soviet, and British styles).
+ 	* Tested with game version 5.506b	
 
 ⸻
 
