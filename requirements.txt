@@ -1,0 +1,5 @@
+Pillow
+transliterate
+pypinyin
+psutil
+pyinstaller
