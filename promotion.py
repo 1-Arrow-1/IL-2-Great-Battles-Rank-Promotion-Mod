@@ -229,6 +229,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
 
     # Chance-based promotion
     roll = random.random()
+    #roll = 0
     log(f"[PLAYER] Pilot {pid}: roll={roll:.3f}, chance={chance:.3f} for rank {rank + 1}")
 
     if roll <= chance:
