@@ -16,12 +16,12 @@
 # Features  
 
 * Real-time monitoring of the cp.db career database, restarting automatically whenever IL-2 closes and reopens.
-* Configurable thresholds for Player Comabt Performance PCP), sorties, and failure rate per rank.
+* Configurable thresholds for Player Combat Performance PCP), sorties, failure rate per rank, promotion cooldown days, and forced promotion (after x failed promotion attempts).
 * Localization support: choose your UI language; Soviet ranks always display in Cyrillic.
 * Authentic-style certificates:
 * German & US certificates modeled on historical originals.
 * Fictional (but polished) Soviet and British versions.
-* Lightweight GUI powered by Tkinter; pop-ups auto-close after 10 seconds.
+* Lightweight GUI powered by Tkinter; pop-ups auto-close after 20 seconds (remaining time is displayed).
 * PyInstaller ready: includes `rank_promotion_checker_new10_AI.spec` for one-file bundling.
 
 # Requirements  
@@ -80,6 +80,8 @@ On first run, promotion_config.json is created in your game’s data/Career fold
 	    [pcp, sortie_count, max_failure_rate],
 	    …
 	  ]
+	"PROMOTION_COOLDOWN_DAYS": x (0-100),
+	"PROMOTION_FAIL_THRESHOLD": y (0-100)
 	}
 ```
 * `pcp` = Player Combat Performance required for auto-promotion **OR**  
