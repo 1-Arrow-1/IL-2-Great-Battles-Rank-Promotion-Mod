@@ -8,7 +8,7 @@
         * If the player fails to promote after a configurable number of consecutive attempts, a forced promotion is granted automatically.
         * AI pilots get promoted based on thresholds (no chance-based approach)	
 	* Displays in-game pop-ups featuring promotion ceremonies.
-	* Generates personalized PNG certificates (German, US, Soviet, and British styles) and a png of the complete promotion popup for each promotion a player earned. Pictures are saved in the game's <Career folder> 
+	* Generates personalized PNG certificates (German, US, Soviet, and British styles) and a png of the complete promotion popup for each promotion a player earned. Pictures are saved in the game's "Career" folder 
  	* Tested with game version 5.506b	
 
 ⸻
