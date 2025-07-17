@@ -2,7 +2,7 @@
 * A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
 	* Monitors your career database in real time for new missions.
 	* Auto-promotes pilots based on configurable performance thresholds.
-   		* Promotions are granted if pilots meet PCP, sortie count, and failure rate thresholds for their current rank.
+   		* Promotions are granted if pilots meet PCP, OR sortie count combined with a failure rate thresholds for their current rank.
 		* Chance-based logic applies to the player pilot: even if criteria are met, a promotion is only awarded based on a randomized probability, which decreases slightly at higher ranks.
     		* After a failed promotion attempt, the player must wait a configurable number of in-game days (cooldown) before the next attempt is evaluated.
         	* If the player fails to promote after a configurable number of consecutive attempts, a forced promotion is granted automatically.
