@@ -5,8 +5,12 @@ import time
 from ranks import get_rank_name, get_rank_title_path, get_small_insignia_path
 from logger import log
 from helpers import is_il2_running, parse_flexible_date
-from config import POLL_INTERVAL, LOCALE_MAP, CEREMONY_MAP, RESOURCE_PATH
+from config import POLL_INTERVAL, LOCALE_MAP, CEREMONY_MAP, RESOURCE_PATH, load_config
 from helpers import cleanup_orphaned_promotion_attempts
+
+config_data = load_config()
+PROMOTION_COOLDOWN_DAYS = config_data["PROMOTION_COOLDOWN_DAYS"]
+PROMOTION_FAIL_THRESHOLD = config_data["PROMOTION_FAIL_THRESHOLD"]
 
 def get_latest_event_year(conn, pid: int) -> int:
     cur = conn.cursor()
@@ -205,7 +209,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
 
         if last_success == 0:
             days_since = (current_date - last_attempt_date).days
-            if days_since < 2:
+            if days_since < PROMOTION_COOLDOWN_DAYS:
                 log(f"Pilot {pid} in cooldown period ({days_since} days since last attempt).")
                 return rank
 
@@ -213,7 +217,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
     chance = max(base_chance, 0.25)
 
     # Forced promotion after 3 failed attempts
-    if fail_count >= 3:
+    if fail_count >= PROMOTION_FAIL_THRESHOLD:
         promote_to = rank + 1
         conn.execute("UPDATE pilot SET rankId=? WHERE id=?", (promote_to, pid))
         cur.execute("""
