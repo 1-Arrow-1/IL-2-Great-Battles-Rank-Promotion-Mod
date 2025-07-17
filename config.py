@@ -39,8 +39,15 @@ def load_config() -> dict:
         # ensure defaults for each country
         defaults = {'101':5,'102':5,'103':5,'201':5}
         cfg['max_ranks'] = {**defaults, **cfg.get('max_ranks', {})}
+        # fallback values
+        cfg['PROMOTION_COOLDOWN_DAYS'] = int(cfg.get('PROMOTION_COOLDOWN_DAYS', 2))
+        cfg['PROMOTION_FAIL_THRESHOLD'] = int(cfg.get('PROMOTION_FAIL_THRESHOLD', 3))
         return cfg
-    return {}
+        
+    return {"max_ranks": {'101':5, '102':5, '103':5, '201':5},
+        "PROMOTION_COOLDOWN_DAYS": 2,
+        "PROMOTION_FAIL_THRESHOLD": 3
+    }
 
 def save_config(cfg: dict):
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
