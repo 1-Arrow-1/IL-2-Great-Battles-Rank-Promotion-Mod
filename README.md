@@ -2,6 +2,10 @@
 * A Python utility for IL-2 Sturmovik: Battle of Stalingrad that:
 	* Monitors your career database in real time for new missions.
 	* Auto-promotes pilots based on configurable performance thresholds.
+   		* Promotions are granted if pilots meet PCP, sortie count, and failure rate thresholds for their current rank.
+		* Chance-based logic applies to the player pilot: even if criteria are met, a promotion is only awarded based on a randomized probability, which decreases slightly at higher ranks.
+                * After a failed promotion attempt, the player must wait a configurable number of in-game days (cooldown) before the next attempt is evaluated.
+                * If the player fails to promote after a configurable number of consecutive attempts, a forced promotion is granted automatically.
 	* Displays in-game pop-ups featuring promotion ceremonies.
 	* Generates personalized PNG certificates (German, US, Soviet, and British styles).
  	* Tested with game version 5.506b	
@@ -54,7 +58,7 @@ pyinstaller rank_promotion_checker_new10_AI.spec
 https://jrsoftware.org/isinfo.php
 
 ### 3. Compile the Installer  
-1.	Open Rank_Mod5.iss in the Inno Setup Compiler.
+1.	Open Rank_Mod6.iss in the Inno Setup Compiler.
 2.	Click Compile (F9).
 3.	The installer will package your pre-built rank_promotion_checker.exe (which already includes all ceremony images, certificate templates, and font files) along with the necessary scripts and assets.
 
