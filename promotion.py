@@ -207,11 +207,19 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
         last_success = row[1]
         fail_count = row[2] or 0
 
-        if last_success == 0:
+        log(f"[DEBUG] Pilot {pid} promotion state — last_success={last_success}, "
+            f"fail_count={fail_count}, last_attempt={last_attempt_date}, current_date={current_date}")
+        if last_success == 0 and last_attempt_date and current_date:
             days_since = (current_date - last_attempt_date).days
+            log(f"[DEBUG] Cooldown comparison for pilot {pid}: days_since={days_since}, "
+                f"required_cooldown={PROMOTION_COOLDOWN_DAYS}")
+
             if days_since < PROMOTION_COOLDOWN_DAYS:
-                log(f"Pilot {pid} in cooldown period ({days_since} days since last attempt).")
+                log(f"Pilot {pid} in cooldown period ({days_since} days since last failed attempt).")
                 return rank
+        elif last_success == 0:
+            log(f"[WARNING] Missing date for cooldown check on pilot {pid}: "
+                f"last_attempt_date={last_attempt_date}, current_date={current_date}")
 
     base_chance = 0.9 - (0.05 * idx)
     chance = max(base_chance, 0.25)
