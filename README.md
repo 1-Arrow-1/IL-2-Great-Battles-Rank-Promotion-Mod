@@ -105,6 +105,7 @@ If you do not wish to compile the executable yourself (and go through all the ha
 https://drive.google.com/file/d/1No74iYiLEAkYa9FB7EIWLTXcb8sNnUxa/view?usp=sharing  
 Unzip, and run `IL2_Rank_Mod_Installer.exe` and follow the installation instructions (Steps 4.-7. of the previous paragraph)
 
+See [LICENSE.md](./LICENSE.md) for details on project and font licensing.
 
 # Project Structure  
 ```bash
@@ -125,7 +126,7 @@ IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── Ceremony_GB.png                      # British ceremony image
 ├── Ceremony_RU.png                      # Soviet ceremony image
 ├── Ceremony_US.png                      # US ceremony image
-├── Darwin Pro Light.otf                 # Custom font used by UI
+├── IBMPlexSans-Light.ttf                # Custom font used by UI
 ├── DejaVuSans.ttf                       # Fallback font for Western scripts
 ├── Kyiv Machine.ttf                     # Cyrillic font for Russian text
 ├── NotoSansSC-Regular.otf               # Chinese font for CJK support
@@ -134,5 +135,6 @@ IL-2-Great-Battles-Rank-Promotion-Mod/
 ├── promotion_certificate_GB.png         # Blank template for British certificate
 ├── Promotion_certificate_RU.png         # Blank template for Soviet certificate
 ├── Promotion_certificate_US.png         # Blank template for US certificates
-├── requirements.txt                     # Necessary Python packages 
+├── requirements.txt                     # Necessary Python packages
+├── LICENSE.md	                         # License info 
 └── README.md                            # This file
