@@ -13,9 +13,9 @@ import queue
 import unicodedata
 from datetime import datetime, timedelta
 from config import (
-    LOG_FILE, CONFIG_FILE, DEFAULT_THRESHOLDS,
+    LOG_FILE, CONFIG_FILE, 
     LOCALE_MAP, CEREMONY_MAP, RESOURCE_PATH,
-    load_config, setup_config, POLL_INTERVAL
+    load_config, POLL_INTERVAL
 )
 from logger import trim_log_to_last_n_missions, log
 from promotion import monitor_db, try_promote, get_active_player_id, get_latest_event_year
