@@ -70,7 +70,7 @@ def get_font_info(text: str, context: str = "ui"):
             return ("DejaVu Sans", "DejaVuSans.ttf")
     else:  # "ui" or default
         if all('LATIN' in unicodedata.name(char, '') for char in text if char.isalpha()):
-            return ("Darwin Pro Light", "Darwin Pro Light.otf")
+            return ("IBMPlexSans-Light", "IBMPlexSans-Light.ttf")
         elif any('CYRILLIC' in unicodedata.name(char, '') for char in text):
             return ("DejaVu Sans", "DejaVuSans.ttf")
         elif any('\u4e00' <= char <= '\u9fff' for char in text):
@@ -83,7 +83,7 @@ def get_script(text, context="ui"):
     Returns 'latin', 'cyrillic', 'chinese', or 'unknown' based on the font family returned.
     """
     family, _ = get_font_info(text, context)
-    if family in ("Darwin Pro Light", "Special Elite"):
+    if family in ("IBMPlexSans-Light", "Special Elite"):
         return "latin"
     elif family in ("Kyiv Machine", "DejaVu Sans"):
         return "cyrillic"

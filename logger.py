@@ -1,6 +1,6 @@
 #import os
 import time
-from config import *
+from config import LOG_FILE
 
 # --- Logging ---
 def trim_log_to_last_n_missions(path, n):

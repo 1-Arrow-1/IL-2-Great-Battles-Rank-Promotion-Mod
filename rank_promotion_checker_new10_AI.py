@@ -62,11 +62,9 @@ def handle_promotion_certificate(
     return cert_img
 
 
-
-
 # --- Main ---
 def main():
-    load_private_font("Darwin Pro Light.otf")
+    load_private_font("IBMPlexSans-Light.ttf")
     root = tk.Tk()
     root.withdraw()
     # make the Tk root available to ui.show_next_popup()

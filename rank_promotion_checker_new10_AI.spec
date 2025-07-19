@@ -29,7 +29,7 @@ a = Analysis(
         ('Kyiv Machine.ttf',        '.'),
         ('DejaVuSans.ttf',          '.'),
         ('NotoSansSC-Regular.otf',  '.'),
-	    ('Darwin Pro Light.otf',    '.'),
+	    ('IBMPlexSans-Light.ttf',    '.'),
 
         # icon (optional if you also reference at runtime)
         ('rank.ico', '.'),
