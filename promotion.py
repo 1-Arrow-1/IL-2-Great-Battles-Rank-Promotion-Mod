@@ -2,6 +2,7 @@ import sqlite3
 import os
 import queue
 import time
+from datetime import datetime
 from ranks import get_rank_name, get_rank_title_path, get_small_insignia_path
 from logger import log
 from helpers import is_il2_running, parse_flexible_date
@@ -11,6 +12,94 @@ from helpers import cleanup_orphaned_promotion_attempts
 config_data = load_config()
 PROMOTION_COOLDOWN_DAYS = config_data["PROMOTION_COOLDOWN_DAYS"]
 PROMOTION_FAIL_THRESHOLD = config_data["PROMOTION_FAIL_THRESHOLD"]
+
+def insert_promotion_event(conn: sqlite3.Connection, pilot_id: int, new_rank: int, mission_date: str) -> bool:
+    """
+    Insert a type=6 promotion event into cp.db.
+    Returns True if inserted, False if a duplicate already existed.
+    """
+    cur = conn.cursor()
+
+    # --- Get pilot info ---
+    prow = cur.execute("""
+        SELECT name, lastName, squadronId, personageId
+        FROM pilot WHERE id = ?
+    """, (pilot_id,)).fetchone()
+    if not prow:
+        log(f"[WARN] Pilot {pilot_id} not found for event insert")
+        return False
+
+    name, last_name, pilot_squadron_row_id, personage_id = prow
+    full_name = f"{name} {last_name}".strip()
+
+    # --- Resolve squadron.configId and careerId ---
+    squadron_row = cur.execute("""
+        SELECT configId, careerId FROM squadron WHERE id = ?
+    """, (pilot_squadron_row_id,)).fetchone()
+    if squadron_row:
+        event_squadron_id = squadron_row[0]
+        career_id = squadron_row[1] if squadron_row[1] is not None else -1
+    else:
+        event_squadron_id = -1
+        career_id = -1
+
+    if career_id < 0:
+        log(f"[WARN] No careerId for squadron id {pilot_squadron_row_id}; writing -1 for event.careerId")
+
+    # --- Normalize date to midnight in IL-2 format ---
+    dt = None
+    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%Y.%m.%d"):
+        try:
+            dt = datetime.strptime(mission_date.split(" ")[0], fmt)
+            break
+        except ValueError:
+            continue
+    if not dt:
+        log(f"[ERROR] Could not parse mission_date '{mission_date}', forcing fallback parse")
+        date_part = mission_date[:10].replace("-", ".")
+        try:
+            dt = datetime.strptime(date_part, "%Y.%m.%d")
+        except ValueError:
+            log("[FATAL] Could not normalize mission_date; using 1941.01.01")
+            dt = datetime(1941, 1, 1)
+
+    promo_date = dt.strftime("%Y.%m.%d 00:00:00")
+
+    # --- Duplicate check ---
+    exists = cur.execute("""
+        SELECT 1 FROM event
+        WHERE type=6 AND pilotId=? AND rankId=? AND date=? AND missionId=-1
+        LIMIT 1
+    """, (pilot_id, new_rank, promo_date)).fetchone()
+    if exists:
+        log(f"[SKIP] Duplicate promotion event for pilot {pilot_id} rank {new_rank} date {promo_date}")
+        return False
+
+    # --- Insert promotion event ---
+    cur.execute("""
+        INSERT INTO event(
+            date, type, pilotId, rankId, missionId,
+            squadronId, careerId,
+            ipar1, ipar2, ipar3, ipar4,
+            tpar1, tpar2, tpar3, tpar4,
+            isDeleted
+        ) VALUES (?, 6, ?, ?, -1,
+                  ?, ?,
+                  ?, -1, -1, -1,
+                  ?, '', '', '',
+                  0)
+    """, (
+        promo_date,
+        pilot_id, new_rank,
+        event_squadron_id, career_id,
+        new_rank,
+        full_name
+    ))
+    conn.commit()
+    log(f"[EVENT] Inserted type=6 for pilot {pilot_id} → rank {new_rank} on {promo_date}")
+    return True
+
+
 
 def get_latest_event_year(conn, pid: int) -> int:
     cur = conn.cursor()
@@ -187,6 +276,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
         conn.execute("UPDATE pilot SET rankId=? WHERE id=?", (promote_to, pid))
         conn.commit()
         log(f"[AI] Pilot {pid} promoted to rank {promote_to} (auto)")
+        insert_promotion_event(conn, pid, promote_to, current_date_str)
         return promote_to
 
     # === PLAYER PILOT LOGIC ===
@@ -237,6 +327,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
         """, (pid, current_date_str))
         conn.commit()
         log(f"[PLAYER] Pilot {pid} forced promotion to {promote_to} after {fail_count} failures.")
+        insert_promotion_event(conn, pid, promote_to, current_date_str)
         return promote_to
 
     # Chance-based promotion
@@ -256,6 +347,7 @@ def try_promote(conn, pid, rank, pcp, sorties, good, thresholds, current_date_st
         """, (pid, current_date_str))
         conn.commit()
         log(f"[PLAYER] Pilot {pid} promoted to rank {promote_to}")
+        insert_promotion_event(conn, pid, promote_to, current_date_str)
         return promote_to
     else:
         fail_count += 1

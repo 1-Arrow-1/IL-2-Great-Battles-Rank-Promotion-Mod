@@ -13,7 +13,7 @@ import queue
 import unicodedata
 from datetime import datetime, timedelta
 from config import (
-    LOG_FILE, CONFIG_FILE, 
+    LOG_FILE, CONFIG_FILE, DEFAULT_THRESHOLDS,
     LOCALE_MAP, CEREMONY_MAP, RESOURCE_PATH,
     load_config, POLL_INTERVAL
 )
@@ -62,9 +62,11 @@ def handle_promotion_certificate(
     return cert_img
 
 
+
+
 # --- Main ---
 def main():
-    load_private_font("IBMPlexSans-Light.ttf")
+    load_private_font("Darwin Pro Light.otf")
     root = tk.Tk()
     root.withdraw()
     # make the Tk root available to ui.show_next_popup()

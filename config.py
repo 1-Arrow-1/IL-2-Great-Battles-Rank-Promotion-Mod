@@ -3,6 +3,12 @@ import os
 import sys
 import json
 
+DEFAULT_THRESHOLDS = [
+    [210,  60, 0.10], [270,  80, 0.10], [340, 100, 0.10],
+    [420, 150, 0.075], [500, 200, 0.075], [590, 250, 0.075],
+    [690, 350, 0.07], [800, 450, 0.06], [920, 600, 0.05],
+]
+
 # Resource path logic for PyInstaller bundles or script run
 if getattr(sys, "frozen", False):
     RESOURCE_PATH = sys._MEIPASS
