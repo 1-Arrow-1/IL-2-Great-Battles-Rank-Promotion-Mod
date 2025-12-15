@@ -2,9 +2,11 @@ import os
 import psutil
 import ctypes
 import unicodedata
+import sqlite3
 from datetime import datetime
 from logger import log
 from config import RESOURCE_PATH
+
 
 # --- Helpers ---
 def is_il2_running() -> bool:
@@ -147,3 +149,100 @@ def name_to_cyrillic(name):
         pinyin = ' '.join(lazy_pinyin(name)).title()
         return translit(pinyin, 'ru')
     return name
+
+def migrate_player_stats_by_description_if_needed(conn: sqlite3.Connection, new_pilot_id: int) -> bool:
+    """
+    When IL-2 creates a NEW player pilot row (new_pilot_id) for the same 'description',
+    copy stats from the closest lower-id pilot with the same description.
+
+    Runs ONCE per new_pilot_id using a marker table:
+      rankmod_player_migrations(oldPilotId, newPilotId PRIMARY KEY, migratedOn)
+
+    Returns True if migration was performed, False otherwise.
+    """
+    if not new_pilot_id:
+        return False
+
+    cur = conn.cursor()
+
+    # Ensure marker table exists
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS rankmod_player_migrations (
+            oldPilotId INTEGER,
+            newPilotId INTEGER PRIMARY KEY,
+            migratedOn TEXT
+        )
+    """)
+
+    # Already migrated for this new pilot?
+    if cur.execute(
+        "SELECT 1 FROM rankmod_player_migrations WHERE newPilotId=? LIMIT 1",
+        (new_pilot_id,)
+    ).fetchone():
+        return False
+
+    # Load new pilot + description
+    row = cur.execute("""
+        SELECT description
+        FROM pilot
+        WHERE id=? AND isDeleted=0
+    """, (new_pilot_id,)).fetchone()
+
+    if not row or not row[0]:
+        return False
+
+    desc = row[0]
+
+    # Find the closest lower-id pilot with the same description
+    old_row = cur.execute("""
+        SELECT id
+        FROM pilot
+        WHERE isDeleted=0
+          AND id < ?
+          AND description = ?
+        ORDER BY id DESC
+        LIMIT 1
+    """, (new_pilot_id, desc)).fetchone()
+
+    if not old_row:
+        log(f"[MIGRATE] No prior player found for new pilot {new_pilot_id} (desc match).")
+        return False
+
+    old_pilot_id = int(old_row[0])
+
+    # Fields to keep from the NEW player row (do NOT overwrite these):
+    # id, squadronID, name, lastName, birthDay, description, commonStat,
+    # personageID, avatarPath, AILevel, insDate, isDeleted
+    #
+    # Approach:
+    # 1) Read columns from PRAGMA table_info(pilot)
+    # 2) Build dynamic UPDATE list for all columns except protected ones
+    protected = {
+        "id", "squadronId", "name", "lastName", "birthDay", "description", "commonStat",
+        "personageId", "avatarPath", "AILevel", "insDate", "isDeleted"
+    }
+
+    # Get pilot table columns
+    cols = [r[1] for r in cur.execute("PRAGMA table_info(pilot)").fetchall()]
+    updatable = [c for c in cols if c not in protected]
+
+    if not updatable:
+        log("[MIGRATE] No updatable columns found in pilot table.")
+        return False
+
+    # Build: UPDATE pilot SET col1=(SELECT col1 FROM pilot WHERE id=?), ...
+    set_clause = ", ".join([f"{c} = (SELECT {c} FROM pilot WHERE id=?)" for c in updatable])
+    params = [old_pilot_id] * len(updatable) + [new_pilot_id]
+
+    sql = f"UPDATE pilot SET {set_clause} WHERE id=?"
+    cur.execute(sql, params)
+
+    # Mark migration done
+    cur.execute("""
+        INSERT INTO rankmod_player_migrations(oldPilotId, newPilotId, migratedOn)
+        VALUES (?, ?, datetime('now'))
+    """, (old_pilot_id, new_pilot_id))
+
+    conn.commit()
+    log(f"[MIGRATE] Copied stats old={old_pilot_id} → new={new_pilot_id} (desc match).")
+    return True

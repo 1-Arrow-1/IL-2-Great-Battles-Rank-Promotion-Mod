@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 from ranks import get_rank_name, get_rank_title_path, get_small_insignia_path
 from logger import log
-from helpers import is_il2_running, parse_flexible_date
+from helpers import is_il2_running, parse_flexible_date, migrate_player_stats_by_description_if_needed
 from config import POLL_INTERVAL, LOCALE_MAP, CEREMONY_MAP, RESOURCE_PATH, load_config
 from helpers import cleanup_orphaned_promotion_attempts
 
@@ -459,7 +459,11 @@ def monitor_db(db_path, thresholds, max_ranks, language, insignia_base):
                 last_mid = mid
                 if date_str != last_date:
                     last_date = date_str
-
+                    # ✅ migrate player stats ONCE for a new player row (if applicable)
+                    if squadron_id is not None:
+                        active_player_id = get_active_player_id(conn, squadron_id)
+                        if active_player_id:
+                            migrate_player_stats_by_description_if_needed(conn, active_player_id)
                     # 2) Determine this mission’s “player” country (unchanged)
                     campaign_country = 201
                     if squadron_id is not None:
