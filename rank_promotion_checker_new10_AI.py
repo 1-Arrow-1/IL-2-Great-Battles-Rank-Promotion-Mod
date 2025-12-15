@@ -79,7 +79,7 @@ def main():
     thresholds = cfg['thresholds']
 
     db_path       = os.path.join(gp, "data", "Career", "cp.db")
-    insignia_base = os.path.join(gp, "MODS", "Ranks", "data", "swf", "il2", "charactersranks")
+    insignia_base = os.path.join(gp, "data", "swf", "il2", "charactersranks")
     # inject into ui.py so it can do get_rank_name(..., INSIGNIA_BASE, ...)
     ui.INSIGNIA_BASE = insignia_base
     
